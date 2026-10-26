@@ -1,0 +1,38 @@
+{
+  "description": "ParentConnect AI v2.2 - voice-ready school communication assistant for parents (webhook-enabled, context fixes)",
+  "language": "en",
+  "shortDescription": "Attendance, results, fees, homework and school updates for parents",
+  "examples": "Aarav's attendance; Fees for Grade 5; Urgent announcements; Report absence",
+  "linkToDocs": "",
+  "displayName": "ParentConnectAI",
+  "activeAssistantAgents": [
+    "smalltalk-domain-on"
+  ],
+  "disableInteractionLogs": false,
+  "disableStackdriverLogs": false,
+  "defaultTimezone": "Asia/Kolkata",
+  "webhook": {
+    "url": "https://YOUR-HOST.example.com/webhook",
+    "username": "",
+    "headers": {},
+    "available": false,
+    "useForDomains": false,
+    "cloudFunctionsEnabled": false,
+    "cloudFunctionsInitialized": false
+  },
+  "isPrivate": true,
+  "mlMinConfidence": 0.3,
+  "supportedLanguages": [
+    "hi",
+    "ta"
+  ],
+  "enableOnePlatformApi": true,
+  "onePlatformApiVersion": "v2",
+  "secondaryKey": "ad609569b3fc410d8d30150b96d4c8ba",
+  "analyzeQueryTextSentiment": false,
+  "enabledKnowledgeBaseNames": [],
+  "knowledgeServiceConfidenceAdjustment": 0.0,
+  "dialogBuilderMode": false,
+  "baseActionPackagesUrl": "",
+  "enableSpellCorrection": true
+}
