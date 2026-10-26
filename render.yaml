@@ -3,7 +3,6 @@ services:
     name: parentconnectai-webhook
     runtime: python
     plan: free
-    rootDir: webhook
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn webhook:app
     healthCheckPath: /health
