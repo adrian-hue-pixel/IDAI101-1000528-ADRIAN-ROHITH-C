@@ -1,15 +1,27 @@
-<p align="center"> <img src="assets/banner.svg" alt="ParentConnect AI banner" width="100%"> </p> <p align="center"> <b>A multilingual Dialogflow ES assistant for parent–school communication, with an optional Python webhook.</b><br> Dialogflow ES agent · Flask webhook · English, Hindi and Tamil </p> <p align="center"> <img alt="Dialogflow ES" src="https://img.shields.io/badge/Dialogflow-ES-orange"> <img alt="Languages" src="https://img.shields.io/badge/languages-English%20%7C%20Hindi%20%7C%20Tamil-blue"> <img alt="Webhook" src="https://img.shields.io/badge/webhook-Flask%20%2B%20Render-green"> <img alt="Version" src="https://img.shields.io/badge/version-2.2-lightgrey"> </p> <p align="center">Chatbot link: <i>https://github.com/adrian-hue-pixel/SA-chatbot-1000528</i></p>
+<p align="center">
+  <img src="assets/banner.svg" alt="ParentConnect AI banner" width="100%">
+</p>
 
-![Dialogflow ES](https://img.shields.io/badge/Dialogflow-ES-orange)
-![Languages](https://img.shields.io/badge/languages-English%20%7C%20Hindi%20%7C%20Tamil-blue)
-![Webhook](https://img.shields.io/badge/webhook-Flask%20%2B%20Render-green)
-![Version](https://img.shields.io/badge/version-2.2-lightgrey)
+<p align="center">
+  <b>A multilingual Dialogflow ES assistant for parent–school communication, with an optional Python webhook.</b><br>
+  Dialogflow ES agent · Flask webhook · English, Hindi and Tamil
+</p>
+
+<p align="center">
+  <img alt="Dialogflow ES" src="https://img.shields.io/badge/Dialogflow-ES-orange">
+  <img alt="Languages" src="https://img.shields.io/badge/languages-English%20%7C%20Hindi%20%7C%20Tamil-blue">
+  <img alt="Webhook" src="https://img.shields.io/badge/webhook-Flask%20%2B%20Render-green">
+  <img alt="Version" src="https://img.shields.io/badge/version-2.2-lightgrey">
+</p>
+
+<p align="center"><b>Live chatbot:</b> <a href="https://bot.dialogflow.com/5440aabf-6d36-4d59-b080-80fb57b6403c">https://bot.dialogflow.com/5440aabf-6d36-4d59-b080-80fb57b6403c</a></p>
 
 ---
 
 ## Table of Contents
 
 - [Overview](#overview)
+- [Problem and users](#problem-and-users)
 - [What it can do](#what-it-can-do)
 - [Repository structure](#repository-structure)
 - [Quick start](#quick-start)
@@ -17,6 +29,8 @@
 - [Intents](#intents)
 - [Contexts](#contexts)
 - [Entities](#entities)
+- [Integration details](#integration-details)
+- [Testing and optimization](#testing-and-optimization)
 - [Webhook](#webhook)
 - [Deploying the webhook on Render](#deploying-the-webhook-on-render)
 - [Demo data](#demo-data)
@@ -34,9 +48,28 @@ ParentConnect AI lets parents check their child's attendance, results, fees and 
 The project has two parts that work together:
 
 1. **The Dialogflow ES agent** (`agent/`): intents, entities and replies in English, Hindi and Tamil. It works on its own with built-in replies.
-2. **The webhook** (`webhook/`): a small Flask app that adds per-child memory, ticket IDs, optional PIN protection, voice (SSML) output and call transfer.
+2. **The webhook** (`webhook/`): a small Flask app that adds per-child memory, ticket IDs, optional PIN protection and call-transfer details.
 
 > **Important:** All student names, IDs, grades and records in this repository are **fictional demo data**. Replace them with a real, secure backend before any production use.
+
+## Problem and users
+
+**The problem:** parents struggle to get quick, accurate information from school. Attendance, exam dates and fee dues sit in circulars and WhatsApp groups, teachers are hard to reach, and the school office answers the same questions again and again.
+
+**Primary users**
+- **Parents and guardians**, including households with more than one child at the school.
+- **School staff** (front office, class teachers, accounts), who receive fewer repeat calls and get complaints, messages and meeting requests as structured requests.
+
+**Pain points identified**
+1. No easy way to see attendance without calling the office.
+2. Exam schedules and fee deadlines are buried in circulars.
+3. Announcements get lost across messaging groups.
+4. Teachers are hard to reach, and meeting requests are manual.
+5. Communication is one-way: the school broadcasts, and parents can rarely ask a quick question.
+
+**Chatbot goals:** quick access to attendance, exam schedules and results, fee details, announcements and homework; contact with teachers and the office; a safe hand-off to a human when the bot can't help.
+
+**Scope:** a Dialogflow ES agent answering these queries in English, Hindi and Tamil, with an optional webhook. Demo data only; it does not connect to a real school system.
 
 ## What it can do
 
@@ -61,6 +94,8 @@ ParentConnectAI/
 │   ├── package.json
 │   ├── intents/                85 intents plus their training-phrase files
 │   └── entities/               20 entities
+├── assets/
+│   └── banner.svg              README header banner
 ├── webhook/                    Flask fulfillment service
 │   ├── webhook.py
 │   ├── school_data.py          demo school and student data
@@ -143,6 +178,37 @@ That is 36 intents for the four children.
 
 20 custom entities: `AbsenceReason`, `AnnouncementCategory`, `AttendanceStatus`, `ComplaintCategory`, `ContactType`, `DateEntity`, `DayOfWeek`, `DocumentType`, `EventType`, `ExamType`, `FeeType`, `FeedbackType`, `GradeAttendance`, `GradeClass`, `StudentId`, `StudentName`, `Subject`, `TeacherName`, `Term`, `TransportRoute`.
 
+### What each entity does
+
+| Entity | Purpose |
+|---|---|
+| `StudentName`, `StudentId` | Identify which child a question is about |
+| `GradeClass`, `GradeAttendance` | Recognise a grade or class ("Grade 8", "class 8"). `GradeAttendance` maps it to that grade's attendance reply |
+| `Subject`, `TeacherName` | Pick the subject or teacher for homework, syllabus, messages and meetings |
+| `Term`, `ExamType` | Term and exam type (unit test, midterm, final) for schedules and results |
+| `FeeType` | Which fee a question is about |
+| `DateEntity`, `DayOfWeek` | Dates and days, including relative ones like "tomorrow" |
+| `AbsenceReason`, `AttendanceStatus` | Why a child was absent, and attendance state for alerts |
+| `AnnouncementCategory`, `EventType` | Filter announcements and events |
+| `TransportRoute` | Bus route lookups |
+| `ContactType` | Who the parent wants to reach (office, principal, transport and so on) |
+| `DocumentType` | Receipts and study material |
+| `ComplaintCategory`, `FeedbackType` | Classify complaints and feedback |
+
+Required slots such as the child, the reason for an absence, or the teacher have prompts, so the bot asks for anything missing before it answers (for example, "Which child is this about?"). This is set up on 11 intents, including `SubmitAbsenceReasonIntent`, `FeeDueIntent`, `GradeAttendanceIntent`, `RequestMeetingIntent`, `MessageTeacherIntent` and `ComplaintRegistrationIntent`.
+
+## Integration details
+
+| Piece | How it is used |
+|---|---|
+| **Dialogflow ES agent** | The chatbot itself: 85 intents, 20 entities, contexts, quick replies and rich-content chips |
+| **Dialogflow Web Demo** | The live chatbot link at the top of this page, which can also be embedded as an `<iframe>` |
+| **Dialogflow Messenger** | Optional chat widget for a web page, and where the chips render best |
+| **Webhook (Flask on Render)** | Fulfillment for 53 intents: per-child memory, ticket IDs, PIN checks, confidence gate |
+| **GitHub** | Stores the agent export and the webhook code, and hosts this documentation |
+
+Every intent also has built-in replies, so the agent still answers if the webhook is switched off.
+
 ## Webhook
 
 Fulfillment is handled by `webhook/webhook.py`, a Flask app with two routes:
@@ -157,7 +223,7 @@ Fulfillment is handled by `webhook/webhook.py`, a Flask app with two routes:
 - Remembers the selected child across turns
 - Generates ticket IDs for complaints, messages and meeting requests
 - Optional PIN protection for personal records
-- Voice (SSML) output and call transfer
+- Call-transfer details for the "Human help" path
 - Asks the parent to rephrase when intent confidence is below 0.7
 - Skips Hindi and Tamil requests, which keep using the agent's built-in replies
 
@@ -210,6 +276,33 @@ Four fictional students are defined in `webhook/school_data.py` and mirrored in 
 
 Attendance, results, fees, homework, the exam timetable, holidays, timings and contacts are all hardcoded sample data.
 
+## Testing and optimization
+
+**Unit testing:** every intent has 10 or more English training phrases (84 of 85; only the default fallback has none by design), and each was written with varied wording. **Integration testing** uses end-to-end journeys in the Dialogflow simulator. Run each scenario below and record the result.
+
+| # | User says (journey) | Expected reply | Result |
+|---|---|---|---|
+| 1 | "Show attendance for Grade 8" | "Attendance is 92% for this term." | ☐ Pass ☐ Fail |
+| 2 | "Choose student" → "Aarav" → "attendance" | Aarav Sharma's attendance card: 92 of 100 days (92%), status Excellent | ☐ Pass ☐ Fail |
+| 3 | "When is the fee due for Grade 8?" | "Tuition fee for Grade 8 is due on 15 Aug." | ☐ Pass ☐ Fail |
+| 4 | "When are the exams?" | Exam schedule card: midterm done, final exams 2–11 Dec 2026 | ☐ Pass ☐ Fail |
+| 5 | "My child was absent due to fever" | Bot asks "Which child is this about?", then confirms the absence is noted | ☐ Pass ☐ Fail |
+| 6 | "What are the school timings?" | Timings card: Mon–Fri, 8:00 AM – 2:30 PM, with chips | ☐ Pass ☐ Fail |
+| 7 | "I want to talk to the school office" | Hand-off message with the office number | ☐ Pass ☐ Fail |
+| 8 | "What is the capital of France?" | Fallback: "Sorry, I didn't catch that..." with option chips | ☐ Pass ☐ Fail |
+
+**Issues found and fixed during testing**
+
+| Issue | Fix |
+|---|---|
+| A previously selected child stayed active after going back to the menu, so a parent could see the wrong child's data | `ChooseStudentIntent` and `MainMenuIntent` now clear the student contexts |
+| Import failed: some Tamil quick-reply buttons were over Dialogflow's 20-character limit | Buttons shortened, and the new text added as training phrases |
+| Attendance trend and absence reports skipped the PIN check when verification was on | PIN check added to both |
+| The same generic phrases ("attendance", "fees") appear in the plain and per-child intents | Intended design: the per-child "Active" intents only match while that child's context is active, and the plain intent handles the rest |
+| 53 intents called a webhook URL that didn't exist, slowing replies | Webhook deployed on Render, with the built-in replies as backup |
+
+To keep improving accuracy, check **Training → History** in Dialogflow for phrases that hit the fallback and add them as training phrases to the right intent.
+
 ## Test checklist
 
 After importing, check the following:
@@ -226,7 +319,7 @@ After importing, check the following:
 
 ## Known issues
 
-- **Duplicate training phrases:** about 162 training phrases appear identically in different intents, so some messages can be routed to the wrong intent. Review and merge them.
+- **Shared training phrases:** generic phrases like "attendance" appear in both the plain intent and the per-child "Active" intents. This is by design and relies on contexts. It only misroutes if two children's contexts are active at once, which the context reset prevents.
 - **Placeholder values:** the transfer phone numbers in `webhook.py` are fake, the demo PIN is `1234`, and the agent's webhook URL is a placeholder.
 - **Hardcoded data:** all records are static sample text, not live data.
 - **Past fee dates:** some fee due dates in the sample data are already in the past.
